@@ -8,7 +8,7 @@
 
 // Set threshold values for moisture and water level
 int dryThreshold = 20;    // Adjust this value based on soil moisture sensor readings
-int waterThreshold = 300;  // Adjust this value based on water level sensor readings
+int waterThreshold = 700;  // Adjust this value based on water level sensor readings
 
 void setup() {
     // Set pin modes
@@ -30,6 +30,16 @@ void setup() {
 }
 
 void loop() {
+// water level conversion , from reference
+// 480 = 0 mm 
+// 530 = 5 mm 
+// 615 = 10 mm 
+// 660 = 15 mm 
+// 680 = 20 mm 
+// 690 = 25 mm 
+// 700 = 30 mm 
+// 705 = 35 mm 
+// 710 = 40 mm 
     // Read values from sensors
     int soilMoisture = analogRead(SOIL_MOISTURE); // Read soil moisture level
     int waterLevel = analogRead(WATER_LEVEL);  // Read water level
