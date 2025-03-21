@@ -1,3 +1,8 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Set the LCD I2C address (0x27 or 0x3F are common addresses)
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // 16x2 LCD
 // Pin Definitions
 #define MOISTURE_SENSOR_PIN A0     // Soil moisture sensor (analog input)
 #define WATER_LEVEL_SENSOR_PIN A1  // Water level sensor (analog input)
@@ -17,6 +22,13 @@ bool pumpActive = false;
 
 void setup() {
   Serial.begin(9600);  // Start serial communication at 9600 baud rate
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("System Initializing");
+  delay(2000);
+  lcd.clear();
 
   // Set sensor pins as input
   pinMode(MOISTURE_SENSOR_PIN, INPUT);
@@ -49,6 +61,17 @@ void loop() {
   Serial.print(waterLevel);
   Serial.println(" cm");  // Display in centimeters
 
+  // Display readings on LCD
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Moisture: ");
+  lcd.print(moisture);
+  lcd.print("%");
+  lcd.setCursor(0, 1);
+  lcd.print("Water: ");
+  lcd.print(waterLevel);
+  lcd.print(" cm");
+
   // Check pump control based on conditions
   checkPumpControl(moisture, waterLevel);
 
@@ -75,6 +98,9 @@ int readWaterLevel() {
 void activatePump(bool state) {
   digitalWrite(HORN_PIN, state ? HIGH : LOW);        // Activate buzzer when pump turns ON
   digitalWrite(PUMP_RELAY_PIN, state ? HIGH : LOW);  // Adjust HIGH/LOW based on relay type
+
+  lcd.setCursor(0, 1);
+  lcd.print(state ? "Pump: ON " : "Pump: OFF");
 }
 
 // Function to check and control the pump based on moisture and water level
@@ -112,6 +138,9 @@ void alertUser(bool soilDryAlert, bool waterLevelAlert) {
     digitalWrite(GREEN_LED, LOW);  // Turn OFF Green LED
     digitalWrite(HORN_PIN, HIGH);  // Activate Buzzer
 
+    lcd.setCursor(0, 1);
+    lcd.print("Alert: Dry Soil  ");
+
     delay(2000);  // Alert duration (2 seconds)
 
     digitalWrite(HORN_PIN, LOW);  // Turn OFF Buzzer after delay
@@ -120,7 +149,10 @@ void alertUser(bool soilDryAlert, bool waterLevelAlert) {
     digitalWrite(GREEN_LED, HIGH);  // Turn ON Green LED
     digitalWrite(RED_LED, LOW);     // Turn OFF Red LED
     digitalWrite(HORN_PIN, HIGH);   // Activate Buzzer
-
+    
+    lcd.setCursor(0, 1);
+    lcd.print("Alert: Water High");
+    
     delay(2000);  // Alert duration (2 seconds)
 
     digitalWrite(HORN_PIN, LOW);  // Turn OFF Buzzer after delay
