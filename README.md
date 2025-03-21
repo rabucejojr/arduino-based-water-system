@@ -5,7 +5,7 @@ This project is an automated irrigation system that monitors soil moisture and w
 
 ## Features
 - **Soil Moisture Monitoring**: Reads soil moisture levels and determines if watering is needed.
-- **Water Level Detection**: Monitors the available water level and prevents dry-run operation of the pump.
+- **Water Level Detection**: Monitors the water level.
 - **Automated Pump Control**: Activates and deactivates the pump based on soil moisture conditions.
 - **Visual and Audio Alerts**: Uses LEDs and a horn for alerts.
 - **LCD Display**: Shows real-time moisture and water levels, along with system status.
@@ -27,8 +27,8 @@ This project is an automated irrigation system that monitors soil moisture and w
 |----------|------------|
 | VCC      | 5V         |
 | GND      | GND        |
-| SDA      | A4         |
-| SCL      | A5         |
+| SDA      | SDA         |
+| SCL      | SCL         |
 
 ### 2. **Soil Moisture Sensor**
 | Sensor Pin | Arduino Pin |
@@ -78,9 +78,9 @@ Upload this code and check if the message "LCD Test Successful!" appears on the 
 
 ## How It Works
 1. The system continuously reads soil moisture and water level sensor values.
-2. If the soil is dry and there is enough water, the pump activates.
-3. The LCD displays the soil moisture, water level, and pump status.
-4. If the water level is too high or soil is too dry, an alert is triggered using LEDs and a horn.
+2. If the soil is dry the pump activate, then stops when water level reaches 3cm.
+3. The LCD displays the soil moisture, and water level.
+4. If the water level is too high or soil is too dry or vice versa, an alert is triggered using LEDs and a horn.
 
 ## Notes
 - Ensure that the I2C address of the LCD module is correct. If the LCD doesn't display anything, use an I2C scanner sketch to find the correct address.
