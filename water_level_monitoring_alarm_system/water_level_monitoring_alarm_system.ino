@@ -55,7 +55,7 @@ void loop() {
   // Display readings on Serial Monitor for debugging
   Serial.print("Moisture Level: ");
   Serial.print(moisture);
-  Serial.println("%");  // Display percentage
+  // Serial.println("%");  // Display percentage
 
   Serial.print("Water Level: ");
   Serial.print(waterLevel);
