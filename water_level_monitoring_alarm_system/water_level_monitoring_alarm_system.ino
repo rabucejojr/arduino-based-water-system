@@ -99,21 +99,11 @@ int readWaterLevel() {
 // Function to activate or deactivate pump
 void activatePump(bool state) {
   digitalWrite(PUMP_RELAY_PIN, state ? HIGH : LOW);  // Adjust HIGH/LOW based on relay type
-
-  Serial.print(state ? "Pump: ON " : "Pump: OFF");
-
-  lcd.setCursor(0, 1);
-  lcd.print(state ? "Pump: ON " : "Pump: OFF");
 }
 
 // Function to activate or deactivate horn
 void activateHorn(bool state) {
   digitalWrite(HORN_PIN, state ? HIGH : LOW);  // Activate horn when pump turns ON
-
-  Serial.println(state ? "Horn: ON " : "Horn: OFF");
-
-  lcd.setCursor(0, 1);
-  lcd.print(state ? "Horn: ON " : "Horn: OFF");
 }
 
 // Function to check and control the pump based on moisture and water level
@@ -130,6 +120,7 @@ void checkPumpControl(int moisture, int waterLevel) {
       Serial.println("Pump Activated: Soil is too dry!");
     }
   }
+
   // If soil moisture is above WET_THRESHOLD, deactivate pump
   else if (moisture > WET_THRESHOLD) {
     if (pumpActive) {
@@ -155,14 +146,16 @@ void alertUser(bool soilDryAlert, bool waterLevelAlert) {
     Serial.println("Alert: Dry Soil!");
     Serial.println("Activating Pump!");
 
-    if (!soilDryAlert) {
-      activatePump(false);
-      activateHorn(false);
-    }
-
     lcd.setCursor(0, 1);
     lcd.print("Alert: Dry Soil  ");
     lcd.println("Activating Pump!");
+
+    if (!soilDryAlert) {
+      activatePump(false);
+      activateHorn(false);
+      digitalWrite(RED_LED, LOW);     // Turn ON Red LED
+      digitalWrite(GREEN_LED, HIGH);  // Turn OFF Green LED
+    }
 
     delay(2000);  // Alert duration (2 seconds)
 
