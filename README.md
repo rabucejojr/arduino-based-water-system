@@ -1,3 +1,4 @@
+
 # Automated Irrigation System with LCD Display
 
 ## Overview
@@ -78,7 +79,7 @@ Upload this code and check if the message "LCD Test Successful!" appears on the 
 
 ## How It Works
 1. The system continuously reads soil moisture and water level sensor values.
-2. If the soil is dry the pump activate, then stops when water level reaches 3cm.
+2. If the soil is dry, the pump activates, then stops when water level reaches 3cm or sufficient wetness intended for palay growth.
 3. The LCD displays the soil moisture, and water level.
 4. If the water level is too high or soil is too dry or vice versa, an alert is triggered using LEDs and a horn.
 
