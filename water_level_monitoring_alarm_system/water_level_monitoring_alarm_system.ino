@@ -12,8 +12,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);  // 16x2 LCD
 #define GREEN_LED 5                // Green LED indicator for normal operation
 
 // Threshold Values
-#define DRY_THRESHOLD 30         // Soil moisture below this value means dry soil
-#define WET_THRESHOLD 60         // Soil moisture above this value means wet soil (turn off pump)
+#define DRY_THRESHOLD 70         // Soil moisture below this value means dry soil
+#define WET_THRESHOLD 100         // Soil moisture above this value means wet soil (turn off pump)
 #define WATER_LEVEL_THRESHOLD 3  // Pump stops when water level reaches this value (in cm)
 #define MOISTURE_HYSTERESIS 5    // Prevents rapid pump switching (hysteresis)
 
@@ -75,7 +75,7 @@ void loop() {
   // Check pump control based on conditions
   checkPumpControl(moisture, waterLevel);
 
-  delay(1000);  // Delay to prevent excessive readings
+  delay(5000);  // Delay to prevent excessive readings
 }
 
 // Function to read soil moisture level
@@ -96,8 +96,10 @@ int readWaterLevel() {
 
 // Function to activate or deactivate pump
 void activatePump(bool state) {
-  digitalWrite(HORN_PIN, state ? HIGH : LOW);        // Activate buzzer when pump turns ON
-  digitalWrite(PUMP_RELAY_PIN, state ? HIGH : LOW);  // Adjust HIGH/LOW based on relay type
+  digitalWrite(HORN_PIN, state ? LOW : HIGH);        // Activate buzzer when pump turns ON
+  digitalWrite(PUMP_RELAY_PIN, state ? LOW : HIGH);  // Adjust HIGH/LOW based on relay type
+
+  Serial.print(state ? "Pump: ON " : "Pump: OFF");
 
   lcd.setCursor(0, 1);
   lcd.print(state ? "Pump: ON " : "Pump: OFF");
@@ -138,6 +140,8 @@ void alertUser(bool soilDryAlert, bool waterLevelAlert) {
     digitalWrite(GREEN_LED, LOW);  // Turn OFF Green LED
     digitalWrite(HORN_PIN, HIGH);  // Activate Buzzer
 
+    Serial.print("Alert: Dry Soil!");
+
     lcd.setCursor(0, 1);
     lcd.print("Alert: Dry Soil  ");
 
@@ -150,6 +154,8 @@ void alertUser(bool soilDryAlert, bool waterLevelAlert) {
     digitalWrite(RED_LED, LOW);     // Turn OFF Red LED
     digitalWrite(HORN_PIN, HIGH);   // Activate Buzzer
     
+    Serial.print("Alert: Water Level at 3cm!");
+
     lcd.setCursor(0, 1);
     lcd.print("Alert: Water level at 3cm");
     
@@ -161,5 +167,6 @@ void alertUser(bool soilDryAlert, bool waterLevelAlert) {
     digitalWrite(RED_LED, LOW);    // Turn OFF Red LED
     digitalWrite(GREEN_LED, LOW);  // Turn OFF Green LED
     digitalWrite(HORN_PIN, LOW);   // Ensure Buzzer is OFF
+    digitalWrite(PUMP_RELAY_PIN, LOW);   // Ensure Buzzer is OFF
   }
 }
