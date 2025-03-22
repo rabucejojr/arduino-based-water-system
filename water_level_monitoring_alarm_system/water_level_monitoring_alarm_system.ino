@@ -12,8 +12,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);  // 16x2 LCD
 #define GREEN_LED 5                // Green LED indicator for normal operation
 
 // Threshold Values
-#define DRY_THRESHOLD 430         // Soil moisture below this value means dry soil
-#define WET_THRESHOLD 405         // Soil moisture above this value means wet soil (turn off pump)
+#define DRY_THRESHOLD 58         // Soil moisture below this value means dry soil
+#define WET_THRESHOLD 100         // Soil moisture above this value means wet soil (turn off pump)
 #define WATER_LEVEL_THRESHOLD 3  // Pump stops when water level reaches this value (in cm)
 #define MOISTURE_HYSTERESIS 5    // Prevents rapid pump switching (hysteresis)
 
@@ -55,7 +55,7 @@ void loop() {
   // Display readings on Serial Monitor for debugging
   Serial.print("Moisture Level: ");
   Serial.print(moisture);
-  // Serial.println("%");  // Display percentage
+  Serial.println("%");  // Display percentage
 
   Serial.print("Water Level: ");
   Serial.print(waterLevel);
@@ -80,12 +80,12 @@ void loop() {
 
 // Function to read soil moisture level
 int readMoisture() {
-  // int sensorValue = analogRead(MOISTURE_SENSOR_PIN);  // Read raw analog value
-  // // Map raw sensor value (0-1023) to percentage (0-100%)
-  // int moistureLevel = map(sensorValue, 1023, 0, 0, 100);
-  // return moistureLevel;
+  int sensorValue = analogRead(MOISTURE_SENSOR_PIN);  // Read raw analog value
+  // Map raw sensor value (0-1023) to percentage (0-100%)
+  int moistureLevel = map(sensorValue, 1023, 0, 0, 100);
+  return moistureLevel;
 
-  return analogRead(MOISTURE_SENSOR_PIN);  // Return raw analog value (0-1023)
+  // return analogRead(MOISTURE_SENSOR_PIN);  // Return raw analog value (0-1023)
 }
 
 // Function to read water level sensor and convert to cm
@@ -110,7 +110,7 @@ void activatePump(bool state) {
 // Function to check and control the pump based on moisture and water level
 void checkPumpControl(int moisture, int waterLevel) {
   // Conditions to check for alerts
-  bool soilDryAlert = (moisture >= DRY_THRESHOLD);               // True if soil is too dry
+  bool soilDryAlert = (moisture <= DRY_THRESHOLD);               // True if soil is too dry
   bool waterLevelAlert = (waterLevel >= WATER_LEVEL_THRESHOLD);  // True if water reaches 3cm
 
   // If soil is too dry and water level is below threshold, activate pump
