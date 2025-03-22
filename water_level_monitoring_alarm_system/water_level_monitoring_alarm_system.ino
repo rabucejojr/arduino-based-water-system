@@ -151,7 +151,7 @@ void alertUser(bool soilDryAlert, bool waterLevelAlert) {
     digitalWrite(HORN_PIN, HIGH);   // Activate Buzzer
     
     lcd.setCursor(0, 1);
-    lcd.print("Alert: Water High");
+    lcd.print("Alert: Water level at 3cm");
     
     delay(2000);  // Alert duration (2 seconds)
 
