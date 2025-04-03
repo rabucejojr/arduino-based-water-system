@@ -66,7 +66,7 @@ void loop() {
   Serial.println("cm");
 
   // Check conditions
-if ( waterLevel < waterLevelThreshold || or soilMoisture < moistureThreshold ) {
+if ( waterLevel < waterLevelThreshold || soilMoisture < moistureThreshold ) {
     digitalWrite(redLED, RELAY_ON);
     digitalWrite(horn, RELAY_ON);
     digitalWrite(pump, RELAY_ON);
