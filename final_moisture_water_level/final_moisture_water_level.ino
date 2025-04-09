@@ -9,7 +9,6 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 #define RELAY_OFF LOW
 
 // Pin assignments
-const int soilMoisturePin = A0;  // Soil moisture sensor analog pin
 const int waterLevelPin = A1;    // Water level sensor analog pin
 const int redLED = 4;            // Red LED relay pin
 const int pump = 3;              // Water pump relay pin
@@ -17,8 +16,8 @@ const int horn = 2;              // Horn relay pin
 const int greenLED = 5;          // Green LED relay pin
 
 // Threshold values
-const int moistureThreshold = 58;   // Minimum soil moisture in %
-const int waterLevelThreshold = 3;  // Minimum water level in cm
+const int waterLevelThresholdHigh = 3;  // Minimum water level in cm
+const int waterLevelThresholdLow = 1;  // Minimum water level in cm
 
 void setup() {
   // Start serial communication
@@ -40,67 +39,53 @@ void setup() {
   lcd.init();
   lcd.backlight();
 }
+bool hornActivated = false;  // track if horn was already activated
 
 void loop() {
-  // Read analog sensor values
-  int moistureValue = analogRead(soilMoisturePin);
+  // Read and convert water level
   int waterLevelValue = analogRead(waterLevelPin);
+  int waterLevel = map(waterLevelValue, 0, 1023, 0, 10); // in cm
 
-  // Convert raw values to percentage or centimeters
-  int soilMoisture = map(moistureValue, 0, 1023, 0, 100);  // e.g., 0–100%
-  int waterLevel = map(waterLevelValue, 0, 1023, 0, 10);   // e.g., 0–10 cm
-
-  // Display readings on LCD
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Moist: ");
-  lcd.print(soilMoisture);
-  lcd.print("%");
-
+  // LCD Display
   lcd.setCursor(0, 1);
   lcd.print("Water: ");
   lcd.print(waterLevel);
-  lcd.print("cm");
+  lcd.print("cm   ");
 
-  // Print readings to Serial Monitor
-  Serial.print("Soil Moisture: ");
-  Serial.print(soilMoisture);
-  Serial.println("%");
+  // Serial Monitor
   Serial.print("Water Level: ");
   Serial.print(waterLevel);
   Serial.println("cm");
 
-// Condition: Either soil is too dry OR water level is too low
-if (soilMoisture < moistureThreshold || waterLevel < waterLevelThreshold) {
-  // Turn ON red LED to indicate problem
-  digitalWrite(redLED, RELAY_ON);
-  
-  // Horn alert pattern (2 short beeps)
-  for (int i = 0; i < 2; i++) {
-    digitalWrite(horn, RELAY_ON);
-    delay(300);
-    digitalWrite(horn, RELAY_OFF);
-    delay(200);
+  // Logic starts here
+  if (waterLevel <= 1) {
+    // Dangerously low
+    setRelays(false, true, true, false); // Pump + Red LED ON
+    hornActivated = false; // reset horn trigger
+  } 
+  else if (waterLevel < 3) {
+    // Still low but recovering
+    setRelays(false, true, false, false); // Keep Pump ON
+    hornActivated = false; // reset horn trigger
+  } 
+  else if (waterLevel == 3 && !hornActivated) {
+    // Reached 3 cm — Turn OFF pump, activate alarm
+    setRelays(false, false, true, true); // Red LED + Horn ON
+    delay(10000);                        // Horn delay 10s
+    digitalWrite(horn, RELAY_OFF);      // Turn OFF horn after delay
+    hornActivated = true;               // Prevent repeated horn triggers
+  } 
+  else {
+    // Normal (above 3 cm)
+    setRelays(false, false, false, false); // All Relay OFF
+    hornActivated = false;               // Reset horn
   }
-
-  // Only run pump when BOTH:
-  // - Soil is dry (below threshold)
-  // - Water level is still below 3cm
-  if (soilMoisture < moistureThreshold && waterLevel < waterLevelThreshold) {
-    digitalWrite(pump, RELAY_ON);  // Pump ON
-  } else {
-    digitalWrite(pump, RELAY_OFF); // Stop pump if water is sufficient
-  }
-
-  // Green LED OFF during abnormal condition
-  digitalWrite(greenLED, RELAY_OFF);
-
-} else {
-  // All normal: turn OFF alerts, turn ON green LED
-  digitalWrite(redLED, RELAY_OFF);
-  digitalWrite(pump, RELAY_OFF);
-  digitalWrite(horn, RELAY_OFF);
-  digitalWrite(greenLED, RELAY_ON);
 }
 
+// Relay control helper
+void setRelays(bool green, bool pumpOn, bool red, bool hornOn) {
+  digitalWrite(greenLED, green ? RELAY_ON : RELAY_OFF);
+  digitalWrite(pump, pumpOn ? RELAY_ON : RELAY_OFF);
+  digitalWrite(redLED, red ? RELAY_ON : RELAY_OFF);
+  digitalWrite(horn, hornOn ? RELAY_ON : RELAY_OFF);
 }
